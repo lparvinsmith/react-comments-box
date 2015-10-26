@@ -19,7 +19,8 @@ var CommentList = React.createClass({
   render: function() {
     return (
       <div className="commentList">
-        Hello, world! I am a CommentList.
+        <Comment author="Lara Parvinsmith">This is one comment</Comment>
+        <Comment author="Brett Wallace">This is *another* comment</Comment>
       </div>
     );
   }
@@ -31,6 +32,21 @@ var CommentForm = React.createClass({
     return (
       <div className="commentForm">
         Hello, world! I am a CommentForm.
+      </div>
+    );
+  }
+});
+
+// creates Comment component, depends on data from parent CommentList
+// properties of parent component available through this.props
+var Comment = React.createClass({
+  render: function() {
+    return (
+      <div className="comment">
+        <h2 className="commentAuthor">
+          {this.props.author}
+        </h2>
+          {this.props.children}
       </div>
     );
   }
