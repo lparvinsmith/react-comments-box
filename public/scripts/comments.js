@@ -9,11 +9,38 @@ var data = [
 // create a new React component CommentBox
 // The JSX compiler will automatically rewrite HTML tags to React.createElement(tagName)
 var CommentBox = React.createClass({
+  // executes once during the lifecycle of the component, sets up the initial state of the component
+  getInitialState: function() {
+    return {data: []};
+  },
+  // uses jQuery to make an asynchronous request to the server to fetch the data
+  loadCommentsFromServer: function() {
+    $.ajax({
+      url: this.props.url,
+      dataType: 'json',
+      cache: false,
+      success: function(data) {
+        // allows for dynamic updates
+        // replace the old array of comments with the new one from the server and the UI automatically updates itself
+        this.setState({data: data});
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    });
+  },
+  // componentDidMount is a method called automatically by React when a component is rendered
+  componentDidMount: function() {
+    this.loadCommentsFromServer();
+    //
+    setInterval(this.loadCommentsFromServer, this.props.pollInterval);
+  },
   render: function() {
+    // this.state is mutable, this.props is immutable
     return (
       <div className="commentBox">
         <h1>Comments</h1>
-        <CommentList data={this.props.data} />
+        <CommentList data={this.state.data} />
         <CommentForm />
       </div>
     );
@@ -75,7 +102,6 @@ var Comment = React.createClass({
 
 // instantiates the root component, starts the framework, and injects the markup into a raw DOM element, provided as the second argument
 ReactDOM.render(
-  // prop data gets fake db
-  <CommentBox data = {data} />,
+  <CommentBox url="/api/comments" pollInterval={2000} />,
   document.getElementById('content')
 );
