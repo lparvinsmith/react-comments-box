@@ -40,15 +40,22 @@ var CommentForm = React.createClass({
 // creates Comment component, depends on data from parent CommentList
 // properties of parent component available through this.props
 var Comment = React.createClass({
+  rawMarkup: function() {
+    // pass 'sanitize: true' to tell marked to escape any HTML markup in the source
+    var rawMarkup = marked(this.props.children.toString(), {sanitize: true});
+    return { __html: rawMarkup };
+  },
   render: function() {
     return (
       <div className="comment">
         <h2 className="commentAuthor">
           {this.props.author}
         </h2>
-          {this.props.children}
+          <span dangerouslySetInnerHTML={this.rawMarkup()} />
       </div>
     );
+    // Sanitizing user input for display is notoriously error-prone, and failure to properly sanitize is one of the leading causes of web vulnerabilities
+    // the prop value (an object instead of a string) can be used to indicate sanitized data
   }
 });
 
