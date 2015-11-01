@@ -1,5 +1,11 @@
 // written in JSX Syntax
 
+// temp db of comments
+var data = [
+  {author: "Lara Parvinsmith", text: "This is one comment"},
+  {author: "Brett Wallace", text: "This is *another* comment"}
+];
+
 // create a new React component CommentBox
 // The JSX compiler will automatically rewrite HTML tags to React.createElement(tagName)
 var CommentBox = React.createClass({
@@ -7,7 +13,7 @@ var CommentBox = React.createClass({
     return (
       <div className="commentBox">
         <h1>Comments</h1>
-        <CommentList />
+        <CommentList data={this.props.data} />
         <CommentForm />
       </div>
     );
@@ -17,10 +23,18 @@ var CommentBox = React.createClass({
 // create component CommentList
 var CommentList = React.createClass({
   render: function() {
+    // transform each element of data array into node with properties author and text
+    var commentNodes = this.props.data.map(function (comment) {
+      return (
+        <Comment author={comment.author}>
+          {comment.text}
+        </Comment>
+      );
+    });
+
     return (
       <div className="commentList">
-        <Comment author="Lara Parvinsmith">This is one comment</Comment>
-        <Comment author="Brett Wallace">This is *another* comment</Comment>
+        {commentNodes}
       </div>
     );
   }
@@ -61,6 +75,7 @@ var Comment = React.createClass({
 
 // instantiates the root component, starts the framework, and injects the markup into a raw DOM element, provided as the second argument
 ReactDOM.render(
-  <CommentBox />,
+  // prop data gets fake db
+  <CommentBox data = {data} />,
   document.getElementById('content')
 );
