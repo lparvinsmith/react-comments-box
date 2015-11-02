@@ -25,6 +25,11 @@ var CommentBox = React.createClass({
   },
   // submit comment to the server and refresh the list
   handleCommentSubmit: function(comment) {
+    // optimizes speed by adding comment to list before request completes
+    var comments = this.state.data;
+    var newComments = comments.concat([comment]);
+    this.setState({data: newComments});
+
     $.ajax({
       url: this.props.url,
       dataType: 'json',
