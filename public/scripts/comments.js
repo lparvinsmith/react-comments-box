@@ -1,11 +1,5 @@
 // written in JSX Syntax
 
-// temp db of comments
-var data = [
-  {author: "Lara Parvinsmith", text: "This is one comment"},
-  {author: "Brett Wallace", text: "This is *another* comment"}
-];
-
 // create a new React component CommentBox
 // The JSX compiler will automatically rewrite HTML tags to React.createElement(tagName)
 var CommentBox = React.createClass({
@@ -29,6 +23,21 @@ var CommentBox = React.createClass({
       }.bind(this)
     });
   },
+  // submit comment to the server and refresh the list
+  handleCommentSubmit: function(comment) {
+    $.ajax({
+      url: this.props.url,
+      dataType: 'json',
+      type: 'POST',
+      data: comment,
+      success: function(data) {
+        this.setState({data: data});
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    });
+  },
   // componentDidMount is a method called automatically by React when a component is rendered
   componentDidMount: function() {
     this.loadCommentsFromServer();
@@ -41,7 +50,7 @@ var CommentBox = React.createClass({
       <div className="commentBox">
         <h1>Comments</h1>
         <CommentList data={this.state.data} />
-        <CommentForm />
+        <CommentForm onCommentSubmit={this.handleCommentSubmit} />
       </div>
     );
   }
@@ -68,12 +77,29 @@ var CommentList = React.createClass({
 });
 
 // create component CommentForm
+// uses the ref attribute to assign a name to a child component and this.refs to reference the DOM node
 var CommentForm = React.createClass({
+  handleSubmit: function(e) {
+    e.preventDefault();
+    var author = this.refs.author.value.trim();
+    var text = this.refs.text.value.trim();
+    if (!text || !author) {
+      return;
+    }
+    // passes data from the child component CommentForm back up to its parent CommentBox
+    this.props.onCommentSubmit({author: author, text: text});
+    // clears form after submit
+    this.refs.author.value = '';
+    this.refs.text.value = '';
+    return;
+  },
   render: function() {
     return (
-      <div className="commentForm">
-        Hello, world! I am a CommentForm.
-      </div>
+      <form className="commentForm" onSubmit={this.handleSubmit}>
+        <input type="text" placeholder="Your name" ref="author" />
+        <input type="text" placeholder="Say something..." ref="text" />
+        <input type="submit" value="Post" />
+      </form>
     );
   }
 });
